@@ -10,7 +10,7 @@ const createUser11 = async (req, res) => {
 // controller function for create blog
 const createBlog = async (req, res) => {
   try {
-    const { blogTitle, detail } = req.body;
+    const { blogTitle, metaTitle, metaDesc,mainImageAlt, detail } = req.body;
 
     let pictureFiles = [];
     pictureFiles = req.files;
@@ -55,6 +55,9 @@ const createBlog = async (req, res) => {
     const blog = new Blog({
       owner: req.user.id,
       blogTitle,
+      metaTitle,
+      metaDesc,
+      mainImageAlt,
       blogMainImage: {
         public_id: filteredImageResponses.public_id,
         url: firstImageResponse.secure_url,
@@ -65,6 +68,7 @@ const createBlog = async (req, res) => {
           public_id: public_id,
           url: secure_url,
         },
+        imageAlt:detail[index].imageAlt,
         subText: detail[index].subText, // Assign subText from detail array in req.body
       })),
     });

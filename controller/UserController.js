@@ -143,9 +143,9 @@ const loginUser = async (req, res) => {
 };
 
 //controller function for getting current loged in user's detail
-const getMe = async (req, res) => {
+const getUsers = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.find().select("-password");
     res.status(200).json({
       success: true,
       user,
@@ -500,7 +500,7 @@ const searchUser = async (req, res) => {
 module.exports = {
   createUser,
   loginUser,
-  getMe,
+  getUsers,
   updateUser,
   forgetPassword,
   passwordReset,
