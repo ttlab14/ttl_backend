@@ -231,6 +231,33 @@ const updateUser = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  console.log(req)
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user){
+      return res.status(400).json({
+        success: false,
+        message: "No User on this ID",
+      });
+    }
+
+
+    const rmProduct = await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+        success: true,
+        message: " User deleted",
+    })
+
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server error");
+  }
+};
+
 // controller function for forget password
 const forgetPassword = async (req, res) => {
   const { email } = req.body;
@@ -502,6 +529,7 @@ module.exports = {
   loginUser,
   getUsers,
   updateUser,
+  deleteUser,
   forgetPassword,
   passwordReset,
   saveVerifiedEmail,

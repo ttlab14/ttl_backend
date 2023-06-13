@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const upload = require("../utils/multer");
-const { createUser,loginUser,getUsers,updateUser,forgetPassword,passwordReset,saveVerifiedEmail,searchUser } = require("../controller/UserController")
+const { createUser,loginUser,getUsers,updateUser,deleteUser,forgetPassword,passwordReset,saveVerifiedEmail,searchUser } = require("../controller/UserController")
 const auth=require("../middleware/authMiddleware")
 const{createUser11,createBlog} =require("../controller/BlogController")
 
@@ -25,6 +25,11 @@ router.get("/getAllUser",getUsers);
 // @desc      updating user profile 
 // access     private
 router.put("/:id",updateUser);
+
+// @route     /api/user/delete/:id
+// @desc      updating user profile 
+// access     private
+router.delete("/delete/:id",deleteUser);
 
 
 

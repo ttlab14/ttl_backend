@@ -53,7 +53,6 @@ const createBlog = async (req, res) => {
     console.log(firstImageResponse)
 
     const blog = new Blog({
-      owner: req.user.id,
       blogTitle,
       metaTitle,
       metaDesc,
@@ -162,15 +161,6 @@ const deleteBlog = async (req, res) => {
         message: " blog deleted",
     })
 
-  
-
-
-
-    res.status(200).json({
-        success: true,
-       blog
-
-    })
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server error");
