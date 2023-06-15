@@ -91,12 +91,7 @@ const createBlog = async (req, res) => {
 //controller function for getting all blogs
 const getAllblogs = async (req, res) => {
   try {
-    const blog = await Blog.find().populate("owner", [
-      "firstname",
-      "lastname",
-      "phone",
-      "email",
-    ]);
+    const blog = await Blog.find();
     res.status(200)
       .json({ success: true, blog });
   } catch (error) {
