@@ -6,6 +6,9 @@ const blogShema = new mongoose.Schema({
     ref: "user",
   },
   blogTitle: String,
+  metaTitle: String,
+  metaDesc: String,
+  mainImageAlt: String,
   // blogMainImage: String,
   blogMainImage: {
     public_id: {
@@ -27,6 +30,7 @@ const blogShema = new mongoose.Schema({
           type: String,
         },
       },
+      imageAlt: String,
       subText: String,
     },
   ],
