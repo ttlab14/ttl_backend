@@ -9,6 +9,7 @@ const blogShema = new mongoose.Schema({
   metaTitle: String,
   metaDesc: String,
   mainImageAlt: String,
+  blogUrlId: String,
   // blogMainImage: String,
   blogMainImage: {
     public_id: {
