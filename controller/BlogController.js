@@ -6,11 +6,17 @@ const createUser11 = async (req, res) => {
   res.send("route workings");
 };
 
-
 // controller function for create blog
 const createBlog = async (req, res) => {
   try {
-    const { blogTitle, metaTitle, metaDesc,mainImageAlt, detail } = req.body;
+    const { blogTitle, metaTitle, metaDesc, mainImageAlt, detail } = req.body;
+    const randomNum = new Date().getTime().toString();
+
+    // create a random id with title
+    const blogUrl =
+      blogTitle.replace(/[?!@#$%^&*]/g, "").replace(/\s+/g, "-") +
+      "_" +
+      randomNum.slice(-5);
 
     let pictureFiles = [];
     pictureFiles = req.files;
@@ -50,13 +56,14 @@ const createBlog = async (req, res) => {
 
     console.log(filteredImageResponses);
     const [firstImageResponse, ...restImageResponses] = filteredImageResponses;
-    console.log(firstImageResponse)
+    console.log(firstImageResponse);
 
     const blog = new Blog({
       blogTitle,
       metaTitle,
       metaDesc,
       mainImageAlt,
+      blogUrlId: blogUrl,
       blogMainImage: {
         public_id: filteredImageResponses.public_id,
         url: firstImageResponse.secure_url,
@@ -67,7 +74,7 @@ const createBlog = async (req, res) => {
           public_id: public_id,
           url: secure_url,
         },
-        imageAlt:detail[index].imageAlt,
+        imageAlt: detail[index].imageAlt,
         subText: detail[index].subText, // Assign subText from detail array in req.body
       })),
     });
@@ -92,8 +99,7 @@ const createBlog = async (req, res) => {
 const getAllblogs = async (req, res) => {
   try {
     const blog = await Blog.find();
-    res.status(200)
-      .json({ success: true, blog });
+    res.status(200).json({ success: true, blog });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -102,80 +108,83 @@ const getAllblogs = async (req, res) => {
   }
 };
 
-
 //controller function for single blog
 const getSingleBlog = async (req, res) => {
   try {
-    const singleProperty = await Blog.findById(req.params.id).populate("owner", [
-      "firstname",
-      "lastname",
-      "phone",
-      "email",
-    ]);
-    res.status(200)
-      .json({ success: true, singleProperty });
-} catch (error) {
-  res.status(500).json({
-    success: false,
-    message: error.message,
-  });
-}
+    const singleProperty = await Blog.findById(req.params.id).populate(
+      "owner",
+      ["firstname", "lastname", "phone", "email"]
+    );
+    res.status(200).json({ success: true, singleProperty });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
-
-
-
+const getSingleBlogByTitle = async (req, res) => {
+  try {
+    const singleProperty = await Blog.findOne({
+      blogUrlId: req.params.id,
+    }).populate("owner", ["firstname", "lastname", "phone", "email"]);
+    res.status(200).json({ success: true, singleProperty });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 //controller function for delete blog
 const deleteBlog = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
 
-    if (!blog){
+    if (!blog) {
       return res.status(400).json({
         success: false,
         message: "No blog on this ID",
       });
     }
     //retrieve current image ID
-    
-    const ids=blog.detail
 
-    const filterID = ids.map(obj => obj.subImage.public_id);
+    const ids = blog.detail;
 
-    
-    await Promise.all(filterID.map(async (public_id) => {
-      await cloudinary.uploader.destroy(public_id);
-    }));
+    const filterID = ids.map((obj) => obj.subImage.public_id);
 
+    await Promise.all(
+      filterID.map(async (public_id) => {
+        await cloudinary.uploader.destroy(public_id);
+      })
+    );
 
     const rmProduct = await Blog.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
-        success: true,
-        message: " blog deleted",
-    })
-
+      success: true,
+      message: " blog deleted",
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server error");
   }
 };
 
-
 // controoler function for edit blog
-const updateBlog=async(req,res)=>{
+const updateBlog = async (req, res) => {
   try {
+    const blog = await Blog.findById(req.params.id);
 
-    const blog = await Blog.findById(req.params.id)
-
-    if (!blog){
-      return res.status(404).json({message:"no blog found"})
+    if (!blog) {
+      return res.status(404).json({ message: "no blog found" });
     }
 
     // making sure the logged in user matches the blog user
     if (blog && blog.owner.toString() !== req.user.id) {
-        return res.status(401).json({ msg: "User Not Authorized" })
+      return res.status(401).json({ msg: "User Not Authorized" });
     }
 
     const { blogTitle, detail } = req.body;
@@ -218,7 +227,7 @@ const updateBlog=async(req,res)=>{
 
     console.log(filteredImageResponses);
     const [firstImageResponse, ...restImageResponses] = filteredImageResponses;
-    console.log(firstImageResponse)
+    console.log(firstImageResponse);
 
     const data = {
       owner: req.user.id,
@@ -236,15 +245,15 @@ const updateBlog=async(req,res)=>{
         subText: detail[index].subText, // Assign subText from detail array in req.body
       })),
     };
-     
 
-
-    const updatedblog = await Blog.findOneAndUpdate(req.params.id, data, { new: true })
+    const updatedblog = await Blog.findOneAndUpdate(req.params.id, data, {
+      new: true,
+    });
 
     res.status(200).json({
-        success: true,
-        updatedblog
-    })
+      success: true,
+      updatedblog,
+    });
   } catch (error) {
     // Send an error response
     res.status(500).json({
@@ -252,9 +261,7 @@ const updateBlog=async(req,res)=>{
       message: error.message,
     });
   }
-}
-
-
+};
 
 module.exports = {
   createUser11,
@@ -262,7 +269,8 @@ module.exports = {
   getAllblogs,
   getSingleBlog,
   deleteBlog,
-  updateBlog
+  updateBlog,
+  getSingleBlogByTitle,
 };
 
 // // Create a new blog object
